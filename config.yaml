@@ -1,0 +1,46 @@
+---
+influxdb:
+  host: 127.0.0.1
+  port: 8086
+  user: root
+  password: root
+  database: Water_Heater
+  db_user: db_user
+  db_password: db_password
+  reconnect_interval: 10000
+  write_interval: 10000
+  voltage_measurement_name: voltage
+  state_measurement_name: state
+buffer:
+  max_size: 100
+event_logger:
+  publish: false
+  print_level: DEBUG
+controller:
+  control_interval: 8
+  voltage_sensor_channel: 0
+  voltage_scale_min: 40
+  voltage_scale_max: 60
+  output_channels:
+    - 5 # Comment
+    - 6 # Comment
+    - 12 # Comment
+    - 13 # Comment
+    - 16 # Comment
+  voltage_limits:
+    low:
+      - 45
+      - 46
+      - 47
+      - 48
+      - 49
+      - 50
+      - 51
+    high:
+      - 46
+      - 47
+      - 48
+      - 49
+      - 50
+      - 51
+      - 52
