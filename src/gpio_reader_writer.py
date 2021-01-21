@@ -10,7 +10,7 @@ from random import randint
 class GPIODataReaderWriter:
     def __init__(self):
         #self.i2c = busio.I2C(board.SCL, board.SDA)
-        #GPIO.setmode(GPIO.BOARD)
+        GPIO.setmode(GPIO.BCM)
         pass
 
     def read_value(self, access_type, access_data):
