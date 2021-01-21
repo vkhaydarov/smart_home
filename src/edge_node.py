@@ -170,7 +170,7 @@ class EdgeNode:
         self.avg_voltage = avg_voltage
 
         del self._voltage_data[0:len(voltage_values)]
-        print self._voltage_data
+        print(self._voltage_data)
         return new_level
 
     def _run_data_collection(self):
