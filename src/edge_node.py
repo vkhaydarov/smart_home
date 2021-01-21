@@ -101,6 +101,7 @@ class EdgeNode:
         :return:
         """
         decision_level = self._voltage_evaluation()
+        decision_level = self.consumption_level + 1
         if decision_level != self.consumption_level:
             self._set_consumption_level(decision_level)
 
