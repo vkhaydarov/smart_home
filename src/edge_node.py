@@ -26,6 +26,8 @@ class EdgeNode:
         self.outputs = cfg['controller']['output_channels']
         self.voltage_threshold = cfg['controller']['voltage_threshold']
         self.critical_level = cfg['controller']['voltage_critical_level']
+        self.voltage_limit_min = cfg['controller']['voltage_limit_min']
+        self.voltage_limit_max = cfg['controller']['voltage_limit_max']
 
         # Threads
         self._control_thread = None
@@ -158,14 +160,15 @@ class EdgeNode:
             log_event(self.cfg, self.module_name, '', 'INFO', 'The voltage level is too low')
             return -1
 
-        if self.avg_voltage == 0:
-            log_event(self.cfg, self.module_name, '', 'INFO', 'The consumption level unchanged: initial control step')
-        elif avg_voltage > self.avg_voltage + self.voltage_threshold:
+        if self.voltage_limit_min < avg_voltage < self.voltage_limit_max:
             new_level = min(new_level+1, 7)
-            log_event(self.cfg, self.module_name, '', 'INFO', 'The consumption level increased: '+str(avg_voltage)+ '>' + str(self.avg_voltage))
-        elif avg_voltage - self.avg_voltage < self.voltage_threshold:
-            new_level = max(new_level-1, 0)
-            log_event(self.cfg, self.module_name, '', 'INFO', 'The consumption level decreased: '+str(avg_voltage)+ '<' + str(self.avg_voltage))
+        else:
+            if avg_voltage > self.avg_voltage + self.voltage_threshold:
+                new_level = min(new_level+1, 7)
+                log_event(self.cfg, self.module_name, '', 'INFO', 'The consumption level increased: '+str(avg_voltage)+ '>' + str(self.avg_voltage))
+            elif avg_voltage - self.avg_voltage < self.voltage_threshold:
+                new_level = max(new_level-1, 0)
+                log_event(self.cfg, self.module_name, '', 'INFO', 'The consumption level decreased: '+str(avg_voltage)+ '<' + str(self.avg_voltage))
 
         self.avg_voltage = avg_voltage
 

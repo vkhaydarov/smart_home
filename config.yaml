@@ -19,7 +19,7 @@ event_logger:
 controller:
   control_interval: 10
   voltage_sensor_channel: 0
-  voltage_scale_min: 40
+  voltage_scale_min: 50
   voltage_scale_max: 60
   output_channels:
     - 5 # Output 1
@@ -29,3 +29,5 @@ controller:
     - 16 # Output 5
   voltage_threshold: 1
   voltage_critical_level: 30
+  voltage_limit_min: 57
+  voltage_limit_max: 58
