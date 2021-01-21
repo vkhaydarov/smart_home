@@ -21,6 +21,4 @@ if __name__ == '__main__':
     # Start controller
     ctrl = EdgeNode(cfg=cfg, buffer=data_buffer)
     ctrl.start()
-    time.sleep(10)
-    ctrl.stop()
 

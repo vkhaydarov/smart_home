@@ -3,7 +3,7 @@
 #import busio
 #import adafruit_ads1x15.ads1015 as ADS
 #from adafruit_ads1x15.analog_in import AnalogIn
-#import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 from random import randint
 
 
@@ -46,12 +46,12 @@ class GPIODataReaderWriter:
 
     def _write_gpio(self, access_data, value):
         channel_no = access_data['channel_no']
-        #GPIO.setup(channel_no, GPIO.OUT)
-        #if value:
-        #    state = GPIO.HIGH
-        #else:
-        #    state = GPIO.LOW
-        #write_status = GPIO.output(channel_no, state)
+        GPIO.setup(channel_no, GPIO.OUT)
+        if value:
+            state = GPIO.HIGH
+        else:
+            state = GPIO.LOW
+        GPIO.output(channel_no, state)
         print('Wrote ', value, ' in channel ', channel_no)
         write_status = True
         return write_status
@@ -59,10 +59,9 @@ class GPIODataReaderWriter:
 
     def check_gpio_state(self, access_data, value):
         channel_no = access_data['channel_no']
-        #if value:
-        #    state = GPIO.HIGH
-        #else:
-        #    state = GPIO.LOW
-        #current_state = GPIO.input(channel_no, state)
-        current_state = value
+        if value:
+            state = GPIO.HIGH
+        else:
+            state = GPIO.LOW
+        current_state = GPIO.input(channel_no, state)
         return current_state == value
