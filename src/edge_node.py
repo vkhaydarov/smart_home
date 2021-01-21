@@ -48,8 +48,11 @@ class EdgeNode:
         ]
 
         # Control output
-        self.consumption_level = 0
         self.gpio_interface = GPIODataReaderWriter()
+
+        # Reset outputs
+        self._set_consumption_level(-1)
+        self.consumption_level = 0
 
         # Internal flags
         self._stop_edge = False
