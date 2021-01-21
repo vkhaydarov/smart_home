@@ -17,30 +17,15 @@ event_logger:
   publish: false
   print_level: DEBUG
 controller:
-  control_interval: 8
+  control_interval: 2
   voltage_sensor_channel: 0
   voltage_scale_min: 40
   voltage_scale_max: 60
   output_channels:
-    - 5 # Comment
-    - 6 # Comment
-    - 12 # Comment
-    - 13 # Comment
-    - 16 # Comment
-  voltage_limits:
-    low:
-      - 45
-      - 46
-      - 47
-      - 48
-      - 49
-      - 50
-      - 51
-    high:
-      - 46
-      - 47
-      - 48
-      - 49
-      - 50
-      - 51
-      - 52
+    - 5 # Output 1
+    - 6 # Output 2
+    - 12 # Output 3
+    - 13 # Output 4
+    - 16 # Output 5
+  voltage_threshold: 1
+  voltage_critical_level: 30

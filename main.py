@@ -1,6 +1,7 @@
 from src.influxdb_writer import InfluxDBWriter
 from src.Buffer import Buffer
-from src.controller import Controller
+from src.edge_node import EdgeNode
+import time
 import yaml
 
 if __name__ == '__main__':
@@ -18,6 +19,8 @@ if __name__ == '__main__':
     idb.connect()
 
     # Start controller
-    ctrl = Controller(cfg=cfg, buffer=data_buffer)
-    ctrl.run_control()
+    ctrl = EdgeNode(cfg=cfg, buffer=data_buffer)
+    ctrl.start()
+    time.sleep(10)
+    ctrl.stop()
 
