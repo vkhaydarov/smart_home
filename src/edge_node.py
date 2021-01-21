@@ -235,6 +235,7 @@ class EdgeNode:
         :return:
         """
         self._stop_control = True
+        self._set_consumption_level(-1)
         log_event(self.cfg, self.module_name, '', 'INFO', 'Control stop initialised')
 
     def stop_data_collection(self):

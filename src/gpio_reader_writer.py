@@ -28,10 +28,8 @@ class GPIODataReaderWriter:
         ads = ADS.ADS1015(self.i2c)
         if channel_no == 0:
             analog_input = AnalogIn(ads, ADS.P0)
-            #analog_input = randint(0, 32000)
         if analog_input:
             read_value = scale_min + analog_input.value * (scale_max-scale_min)/2**15
-            #read_value = scale_min + analog_input * (scale_max-scale_min)/2**15
         else:
             read_value = None
         print('Read ', read_value, ' from channel ', channel_no, ' raw value = ', analog_input.value)
