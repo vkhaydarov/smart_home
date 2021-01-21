@@ -34,7 +34,7 @@ class GPIODataReaderWriter:
             #read_value = scale_min + analog_input * (scale_max-scale_min)/2**15
         else:
             read_value = None
-        print('Read ', read_value, ' from channel ', channel_no)
+        print('Read ', read_value, ' from channel ', channel_no, ' raw value = ', analog_input.value)
         return read_value
 
     def write_value(self, access_type, access_data, value):
