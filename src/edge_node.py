@@ -163,12 +163,15 @@ class EdgeNode:
         if self.voltage_limit_min < avg_voltage < self.voltage_limit_max:
             new_level = min(new_level+1, 7)
         else:
-            if avg_voltage > self.avg_voltage + self.voltage_threshold:
-                new_level = min(new_level+1, 7)
-                log_event(self.cfg, self.module_name, '', 'INFO', 'The consumption level increased: '+str(avg_voltage)+ '>' + str(self.avg_voltage))
-            elif avg_voltage - self.avg_voltage < self.voltage_threshold:
-                new_level = max(new_level-1, 0)
-                log_event(self.cfg, self.module_name, '', 'INFO', 'The consumption level decreased: '+str(avg_voltage)+ '<' + str(self.avg_voltage))
+            if avg_voltage < self.avg_voltage - self.voltage_threshold:
+                new_level = max(new_level - 1, 0)
+                log_event(self.cfg, self.module_name, '', 'INFO',
+                          'The consumption level decreased: ' + str(avg_voltage) + '<' + str(self.avg_voltage))
+            elif avg_voltage < self.avg_voltage - self.voltage_threshold:
+                new_level = min(new_level + 1, 7)
+                log_event(self.cfg, self.module_name, '', 'INFO',
+                          'The consumption level increased: ' + str(avg_voltage) + '>' + str(self.avg_voltage))
+
 
         self.avg_voltage = avg_voltage
 
