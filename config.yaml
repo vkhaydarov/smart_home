@@ -27,7 +27,7 @@ controller:
     - 12 # Output 3
     - 13 # Output 4
     - 16 # Output 5
-  voltage_threshold: 0.5
+  voltage_threshold: 0.1
   voltage_critical_level: 53
   voltage_limit_min: 57
   voltage_limit_max: 58
