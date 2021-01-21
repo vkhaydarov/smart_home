@@ -1,15 +1,15 @@
-#import time
-#import board
-#import busio
-#import adafruit_ads1x15.ads1015 as ADS
-#from adafruit_ads1x15.analog_in import AnalogIn
+import time
+import board
+import busio
+import adafruit_ads1x15.ads1015 as ADS
+from adafruit_ads1x15.analog_in import AnalogIn
 import RPi.GPIO as GPIO
 from random import randint
 
 
 class GPIODataReaderWriter:
     def __init__(self):
-        #self.i2c = busio.I2C(board.SCL, board.SDA)
+        self.i2c = busio.I2C(board.SCL, board.SDA)
         GPIO.setmode(GPIO.BCM)
         pass
 
@@ -25,13 +25,13 @@ class GPIODataReaderWriter:
         scale_min = access_data['scale_min']
         scale_max = access_data['scale_max']
 
-        #ads = ADS.ADS1015(self.i2c)
+        ads = ADS.ADS1015(self.i2c)
         if channel_no == 0:
-            #analog_input = AnalogIn(ads, ADS.P0)
-            analog_input = randint(0, 32000)
+            analog_input = AnalogIn(ads, ADS.P0)
+            #analog_input = randint(0, 32000)
         if analog_input:
-            #read_value = scale_min + analog_input.value * (scale_max-scale_min)/2**15
-            read_value = scale_min + analog_input * (scale_max-scale_min)/2**15
+            read_value = scale_min + analog_input.value * (scale_max-scale_min)/2**15
+            #read_value = scale_min + analog_input * (scale_max-scale_min)/2**15
         else:
             read_value = None
         print('Read ', read_value, ' from channel ', channel_no)
