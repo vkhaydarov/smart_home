@@ -17,7 +17,7 @@ event_logger:
   publish: false
   print_level: DEBUG
 controller:
-  control_interval: 15
+  control_interval: 10
   voltage_sensor_channel: 0
   voltage_scale_min: 40
   voltage_scale_max: 60
