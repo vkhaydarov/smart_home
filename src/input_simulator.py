@@ -1,6 +1,5 @@
 from math import sin, pi
 from random import randint
-import matplotlib.pyplot as plt
 
 
 class InputSimulator:
@@ -59,6 +58,3 @@ if __name__ == '__main__':
     sim_values = []
     for time_step in range(120):
         sim_values.append(sim.get_raw_value())
-
-    plt.plot(sim_values)
-    plt.show()
