@@ -1,7 +1,7 @@
 from src.influxdb_writer import InfluxDBWriter
 from src.Buffer import Buffer
 from src.edge_node import EdgeNode
-import time
+from src.frontend import Frontend
 import yaml
 
 if __name__ == '__main__':
@@ -21,4 +21,8 @@ if __name__ == '__main__':
     # Start controller
     ctrl = EdgeNode(cfg=cfg, buffer=data_buffer)
     ctrl.start()
+
+    # Start frontend
+    frontend = Frontend('127.0.0.1', 5000, ctrl, idb)
+    frontend.start()
 

@@ -20,18 +20,21 @@ class BufferEntity:
             data_line = self.data['measurement']
 
             # Tags
-            for key, value in self.data['tags'].items():
-                if isinstance(value, (int, float)):
-                    data_line += ',' + key + '=' + str(value)
-                else:
-                    value = value.replace(' ', '')
-                    data_line += ',' + key + '=' + value
+            if 'tags' in self.data:
+                for key, value in self.data['tags'].items():
+                    if isinstance(value, (int, float)):
+                        data_line += ',' + key + '=' + str(value)
+                    else:
+                        value = value.replace(' ', '')
+                        data_line += ',' + key + '=' + value
 
             # Backspace between tags and fields
             data_line += ' '
 
             # Fields
             for key, value in self.data['fields'].items():
+                if isinstance(value, bool):
+                    value = int(value)
                 if isinstance(value, (int, float)):
                     data_line += key + '=' + str(value) + ','
                 else:
@@ -46,8 +49,8 @@ class BufferEntity:
 
             return [True, data_line]
 
-        except Exception:
-            return [False, '']
+        except Exception as err:
+            return [False, err]
 
 
 class Buffer:

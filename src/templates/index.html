@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- Add icon library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.1/examples/sticky-footer/">
+    <link rel="stylesheet" href="static/sticky-footer.css">
+    <link rel="stylesheet" href="static/bootstrap.css">
+    <title>Water heater dashboard</title>
+
+</head>
+
+<body class="bg-dark" style="background-color: #222!important;">
+
+<script type=text/javascript> $(function () {
+    $("#emergency").click(function (event) {
+        $.getJSON('/Emergency', {},
+            function (data) {
+            });
+        return false;
+    });
+}); </script>
+
+<script type=text/javascript> $(function () {
+    $("#level_up").click(function (event) {
+        var current_value = parseInt(document.getElementById("consumption_level").value);
+        document.getElementById("consumption_level").value = current_value + 1;
+        document.getElementById("level_up").disabled = true;
+        document.getElementById("level_down").disabled = true;
+        $.getJSON('/IncreaseLevel', {},
+            function (data) {
+            });
+        return false;
+    });
+}); </script>
+
+<script type=text/javascript> $(function () {
+    $("#level_down").click(function (event) {
+        var current_value = parseInt(document.getElementById("consumption_level").value);
+        document.getElementById("consumption_level").value = current_value - 1;
+        document.getElementById("level_up").disabled = true;
+        document.getElementById("level_down").disabled = true;
+        $.getJSON('/DecreaseLevel', {},
+            function (data) {
+            });
+        return false;
+    });
+}); </script>
+
+<script type=text/javascript> $(function () {
+    var switchStatus = false;
+    $("#mode_switch").on('change', function () {
+        if ($(this).is(':checked')) {
+            document.getElementById("mode_switch").disabled = true
+            document.getElementById("mode_switch_label").innerText = 'Auto'
+            switchStatus = $(this).is(':checked');
+            $.getJSON('/AutoMode', {},
+                function (data) {
+                });
+        } else {
+            document.getElementById("mode_switch").disabled = true
+            document.getElementById("mode_switch_label").innerText = 'Manual'
+            switchStatus = $(this).is(':checked');
+            $.getJSON('/ManualMode', {},
+                function (data) {
+                });
+        }
+    });
+}); </script>
+
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #375a7f !important;">
+    <div class="container-fluid">
+        <a class="navbar-brand" style="font-size: 30px; color: #fff; font-weight: bold">Water heater dashboard</a>
+    </div>
+</nav>
+
+<div class="container-fluid" style="font-size: 20px; color: #fff; text-align: left; background-color: #222;">
+    <form>
+        <fieldset>
+            <legend style="font-size: 30px;">Status</legend>
+            <div class="form-group row" style="max-width: 600px ">
+                <div class="col-4">
+                    <p for="status_edge_node" style="width: 200px !important;">Edge node</p>
+                </div>
+                <div class="col">
+                    <span class="badge badge-warning" id="status_edge_node">Connecting</span>
+                </div>
+            </div>
+
+            <div class="form-group row" style="max-width: 600px ">
+                <div class="col-4">
+                    <label for="status_edge_node" style="width: 200px !important;">InfluxDB Server</label>
+                </div>
+                <div class="col">
+                    <span class="badge badge-warning" id="status_influxdb">Connecting</span>
+                </div>
+            </div>
+
+            <legend style="font-size: 30px;">Control</legend>
+
+            <div class="form-group row" style="max-width: 600px ">
+                <div class="col-4">
+                    <label for="status_edge_node" style="width: 200px !important; ">Mode</label>
+                </div>
+                <div class="col">
+                    <span class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="mode_switch">
+                        <label class="custom-control-label" id="mode_switch_label" for="mode_switch"></label>
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group row" style="max-width: 600px ">
+                <div class="col-4">
+                    <p for="status_edge_node" style="min-width: 200px !important;">Voltage</p>
+                </div>
+                <div class="col">
+                    <div id="voltage_value"></div>
+                </div>
+            </div>
+
+            <div class="form-group row" style="max-width: 600px ">
+                <div class="col-4">
+                    <label for="status_edge_node" style="min-width: 200px !important;">Load level</label>
+                </div>
+                <div class="col">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <input type="button" id="level_up" class="btn btn-dark" value="+"/>
+                        <input type="text-center" id="consumption_level" readonly class="btn btn-dark"
+                               style="width: 3rem; height: 2rem; text-align:center; font-size: 20px" value="">
+                        <input type="button" id="level_down" class="btn btn-dark" value="-"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row" style="max-width: 600px ">
+                <div class="col-4">
+                    <p for="status_edge_node" style="min-width: 200px !important;">Current load</p>
+                </div>
+                <div class="col">
+                    <div id="load_value"></div>
+                </div>
+            </div>
+
+            <div class="form-group row" style="max-width: 600px ">
+                <div class="col-4">
+                    <label for="status_edge_node" style="min-width: 200px !important;">Outputs</label>
+                </div>
+                <div class="col">
+                    <span class="badge badge-warning" id="output1">-</span>
+                    <span class="badge badge-warning" id="output2">-</span>
+                    <span class="badge badge-warning" id="output3">-</span>
+                    <span class="badge badge-warning" id="output4">-</span>
+                    <span class="badge badge-warning" id="output5">-</span>
+                </div>
+            </div>
+            <div class="form-group row" style="height: 50px "></div>
+        </fieldset>
+    </form>
+</div>
+
+<footer class="footer">
+    <div class="container">
+    <input type="button" id="emergency" class="btn btn-danger btn-lg btn-block" value="Emergency"/>
+    </div>
+</footer>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+</body>
+
+<script>
+    function LoadAndUpdate() {
+
+        fetch('/api/info')
+            .then((response) => {
+                return response.json();
+            })
+            .then((info) => {
+
+                if (info["status_edge_node"]) {
+                    document.getElementById("status_edge_node").className = "badge badge-success";
+                    document.getElementById("status_edge_node").innerText = "Online";
+                } else {
+                    document.getElementById("status_edge_node").className = "badge badge-danger";
+                    document.getElementById("status_edge_node").innerText = "Offline";
+                }
+
+                if (info["status_influxdb"]) {
+                    document.getElementById("status_influxdb").className = "badge badge-success";
+                    document.getElementById("status_influxdb").innerText = "Online";
+                } else {
+                    document.getElementById("status_influxdb").className = "badge badge-danger";
+                    document.getElementById("status_influxdb").innerText = "Offline";
+                }
+
+
+                if (info["auto_mode_requested"]) {
+                    document.getElementById("mode_switch").checked = true;
+                    document.getElementById("mode_switch_label").innerText = "Auto";
+                } else {
+                    document.getElementById("mode_switch").checked = false;
+                    document.getElementById("mode_switch_label").innerText = "Manual";
+                }
+
+                if (info["mode_auto"] == info["mode_manual"]) {
+                    document.getElementById("mode_switch").disabled = true;
+                } else {
+                    document.getElementById("mode_switch").disabled = false;
+                }
+
+
+                if (info["consumption_level"] <= 0 || info["mode_auto"]) {
+                    document.getElementById("level_down").disabled = true;
+                } else {
+                    document.getElementById("level_down").disabled = false;
+                }
+
+                if (info["consumption_level"] >= 7 || info["mode_auto"]) {
+                    document.getElementById("level_up").disabled = true;
+                } else {
+                    document.getElementById("level_up").disabled = false;
+                }
+                document.getElementById("consumption_level").value = info["consumption_level"];
+                document.getElementById("load_value").innerText = String(info["load"]).concat(' kW');
+
+                var voltage_value = String(info["voltage_value"])
+                var voltage_average = String(info["voltage_average"])
+                document.getElementById("voltage_value").innerText = voltage_value.concat(" (average: ", voltage_average, ")");
+                //document.getElementById("voltage_average").innerText = info["voltage_average"];
+
+
+                if (info["output1"]) {
+                    document.getElementById("output1").className = "badge badge-success";
+                    document.getElementById("output1").innerText = "On";
+                } else {
+                    document.getElementById("output1").className = "badge badge-danger";
+                    document.getElementById("output1").innerText = "Off";
+                }
+
+                if (info["output2"]) {
+                    document.getElementById("output2").className = "badge badge-success";
+                    document.getElementById("output2").innerText = "On";
+                } else {
+                    document.getElementById("output2").className = "badge badge-danger";
+                    document.getElementById("output2").innerText = "Off";
+                }
+
+                if (info["output3"]) {
+                    document.getElementById("output3").className = "badge badge-success";
+                    document.getElementById("output3").innerText = "On";
+                } else {
+                    document.getElementById("output3").className = "badge badge-danger";
+                    document.getElementById("output3").innerText = "Off";
+                }
+
+                if (info["output4"]) {
+                    document.getElementById("output4").className = "badge badge-success";
+                    document.getElementById("output4").innerText = "On";
+                } else {
+                    document.getElementById("output4").className = "badge badge-danger";
+                    document.getElementById("output4").innerText = "Off";
+                }
+
+                if (info["output5"]) {
+                    document.getElementById("output5").className = "badge badge-success";
+                    document.getElementById("output5").innerText = "On";
+                } else {
+                    document.getElementById("output5").className = "badge badge-danger";
+                    document.getElementById("output5").innerText = "Off";
+                }
+
+            });
+    }
+
+    // call the method getTowers once to get initial data.
+    LoadAndUpdate();
+
+    // call the method getTowers every second. So that the data will be updated.
+    setInterval(LoadAndUpdate, 1000);
+</script>
+
+</html>

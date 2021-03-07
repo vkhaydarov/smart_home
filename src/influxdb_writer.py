@@ -84,8 +84,8 @@ class InfluxDBWriter:
         try:
             self.client.ping()
             self.connection_status = True
-        except Exception:
-            log_event(self.cfg, self.module_name, '', 'WARN', 'No connection to INFLUXDB server')
+        except Exception as err:
+            log_event(self.cfg, self.module_name, '', 'WARN', 'No connection to INFLUXDB server' + ': ' + str(err))
             self.connection_status = False
 
     def get_connection_status(self):
@@ -115,10 +115,10 @@ class InfluxDBWriter:
                     # Request INFLUX DB connection status
                     self.client.ping()
 
-                except Exception:
+                except Exception as err:
                     # In case of missing connection, we do cleanup procedure and wait a little bit to let
                     # opcua-python close subscription threads
-                    log_event(self.cfg, self.module_name, '', 'WARN', 'No connection to INFLUXDB server')
+                    log_event(self.cfg, self.module_name, '', 'WARN', 'No connection to INFLUXDB server' + ': ' + str(err))
                     self.connection_status = False
                     self.disconnect()
                     time.sleep(1)
@@ -149,8 +149,8 @@ class InfluxDBWriter:
         try:
             self.client.close()
             log_event(self.cfg, self.module_name, '', 'INFO', 'Disconnection successful')
-        except Exception:
-            log_event(self.cfg, self.module_name, '', 'ERR', 'Disconnection failed')
+        except Exception as err:
+            log_event(self.cfg, self.module_name, '', 'ERR', 'Disconnection failed' + ': ' + str(err))
 
     def _start_ingestion(self):
         """
@@ -195,7 +195,7 @@ class InfluxDBWriter:
                             original_idx += original_idx
                             self.buffer.remove_point(original_idx)
                     else:
-                        log_event(self.cfg, self.module_name, '', 'ERR', 'Problem with generating line protocol')
+                        log_event(self.cfg, self.module_name, '', 'ERR', 'Problem with generating line protocol' + ': ' + str(data_line))
                         self.buffer.remove_point(original_idx)
                 log_event(self.cfg, self.module_name, '', 'INFO',
                           'Ingestion of ' + str(buffer_len) + ' point(s) took ' + str(time.time() - start_time))
@@ -214,8 +214,8 @@ class InfluxDBWriter:
                 self.client.create_database(self.db_name)
                 log_event(self.cfg, self.module_name, '', 'INFO', 'Database ' + self.db_name + ' successfully created')
             return True
-        except Exception:
-            log_event(self.cfg, self.module_name, '', 'ERR', 'Cannot create database' + self.db_name)
+        except Exception as err:
+            log_event(self.cfg, self.module_name, '', 'ERR', 'Cannot create database' + self.db_name + ': ' + str(err))
             return False
 
     def _ingest_data_point(self, data_line):
@@ -226,11 +226,11 @@ class InfluxDBWriter:
         """
         if data_line:
             try:
-                self.client.write_points(data_line, database=self.db_name, time_precision='ms', protocol='line')
+                ret = self.client.write_points(data_line, database=self.db_name, time_precision='ms', protocol='line')
                 log_event(self.cfg, self.module_name, '', 'INFO', 'Line >' + data_line + '< inserted in influxdb')
                 return True
-            except Exception:
-                log_event(self.cfg, self.module_name, '', 'WARN', 'Data insertion failed')
+            except Exception as err:
+                log_event(self.cfg, self.module_name, '', 'WARN', 'Data insertion failed:' + str(err))
                 return False
 
     def exit(self):
