@@ -1,19 +1,17 @@
 import time
 from random import randint
 from src.input_simulator import InputSimulator
-
+import board
+import busio
+import adafruit_ads1x15.ads1015 as ADS
+from adafruit_ads1x15.analog_in import AnalogIn
+import RPi.GPIO as GPIO
 
 class GPIODataReaderWriter:
     def __init__(self, deploy=False, test_profile=''):
         self.deploy = deploy
         self.test_profile = test_profile
         if deploy:
-            import board
-            import busio
-            import adafruit_ads1x15.ads1015 as ADS
-            from adafruit_ads1x15.analog_in import AnalogIn
-            import RPi.GPIO as GPIO
-
             self.i2c = busio.I2C(board.SCL, board.SDA)
             GPIO.setmode(GPIO.BCM)
         else:
@@ -75,7 +73,7 @@ class GPIODataReaderWriter:
                 state = GPIO.HIGH
             else:
                 state = GPIO.LOW
-            current_state = GPIO.input(channel_no, state)
+            current_state = GPIO.input(channel_no)
         else:
             current_state = self.gpio[channel_no]
         return current_state == value
