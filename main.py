@@ -23,6 +23,6 @@ if __name__ == '__main__':
     ctrl.start()
 
     # Start frontend
-    frontend = Frontend('127.0.0.1', 5000, ctrl, idb)
+    frontend = Frontend('192.168.178.34', 5000, ctrl, idb)
     frontend.start()
 

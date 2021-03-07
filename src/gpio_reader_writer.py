@@ -15,9 +15,9 @@ class GPIODataReaderWriter:
             import RPi.GPIO as GPIO
 
             self.i2c = busio.I2C(board.SCL, board.SDA)
-            GPIO.setmode(GPIO.BCM)
+            self.gpio = GPIO.setmode(GPIO.BCM)
         else:
-            self.GPIO = [None] * 40
+            self.gpio = [None] * 40
             self.voltage_simulator = InputSimulator(55, test_profile)
 
     def read_value(self, access_type, access_data):
@@ -56,14 +56,14 @@ class GPIODataReaderWriter:
     def _write_gpio(self, access_data, value):
         channel_no = access_data['channel_no']
         if self.deploy:
-            GPIO.setup(channel_no, GPIO.OUT)
+            self.gpio.setup(channel_no, GPIO.OUT)
             if value:
                 state = GPIO.HIGH
             else:
                 state = GPIO.LOW
-            GPIO.output(channel_no, state)
+            self.gpio.output(channel_no, state)
         else:
-            self.GPIO[channel_no] = value
+            self.gpio[channel_no] = value
         print('Wrote ', value, ' in channel ', channel_no)
         write_status = True
         return write_status
@@ -72,10 +72,10 @@ class GPIODataReaderWriter:
         channel_no = access_data['channel_no']
         if self.deploy:
             if value:
-                state = GPIO.HIGH
+                state = self.gpio.HIGH
             else:
-                state = GPIO.LOW
-            current_state = GPIO.input(channel_no, state)
+                state = self.gpio.LOW
+            current_state = self.gpio.input(channel_no, state)
         else:
-            current_state = self.GPIO[channel_no]
+            current_state = self.gpio[channel_no]
         return current_state == value

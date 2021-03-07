@@ -1,6 +1,6 @@
 ---
 influxdb:
-  host: 127.0.0.1
+  host: 192.168.178.34
   port: 8086
   user: root
   password: root
@@ -40,8 +40,8 @@ controller:
     - 2
     - 3
   voltage_threshold: 0.1
-  voltage_critical_level: 51
+  voltage_critical_level: 47
   voltage_limit_min: 57
   voltage_limit_max: 58
-  input_simulation: True
+  input_simulation: False
   simulation_profile: sine
