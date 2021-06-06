@@ -18,20 +18,6 @@ class EdgeNode:
 
         # Read information from config file
         self.cfg = cfg
-        self.control_interval = cfg['controller']['control_interval']
-        self.voltage_access_data = {'channel_no': cfg['controller']['voltage_sensor_channel'],
-                                    'scale_min': cfg['controller']['voltage_scale_min'],
-                                    'scale_max': cfg['controller']['voltage_scale_max']}
-        self.voltage_measurement_name = cfg['influxdb']['voltage_measurement_name']
-        self.state_measurement_name = cfg['influxdb']['state_measurement_name']
-        self.consumption_measurement_name = cfg['influxdb']['consumption_measurement_name']
-        self.output_measurement_name = cfg['influxdb']['output_measurement_name']
-        self.mode_measurement_name = cfg['influxdb']['mode_measurement_name']
-        self.outputs = cfg['controller']['output_channels']
-        self.voltage_threshold = cfg['controller']['voltage_threshold']
-        self.critical_level = cfg['controller']['voltage_critical_level']
-        self.voltage_limit_min = cfg['controller']['voltage_limit_min']
-        self.voltage_limit_max = cfg['controller']['voltage_limit_max']
 
         # Threads
         self._control_thread = None
@@ -46,7 +32,7 @@ class EdgeNode:
         self.voltage_value = None
         self._voltage_data = []
         self.mapping_table = [
-            [1, 2, 4],
+            [2, 4, 1],
             [-4],
             [4, 5],
             [-2, -4, -5],
@@ -54,15 +40,13 @@ class EdgeNode:
             [-4],
             [4, 5],
         ]
-        self.load_mapping = cfg['controller']['loads']
         self.load = 0
 
-        # Simulation
-        self.deploy = not cfg['controller']['input_simulation']
-        self.sim_profile = cfg['controller']['simulation_profile']
+        # Current regime
+        self.regime = 0
 
         # Control output
-        self.gpio_interface = GPIODataReaderWriter(deploy=self.deploy, test_profile='constant')
+        self.gpio_interface = GPIODataReaderWriter(not self.cfg['simulation']['active'], self.cfg['simulation']['profile'])
 
         # Reset outputs
         self._set_consumption_level(-1)
@@ -102,7 +86,7 @@ class EdgeNode:
         """
         while not self._stop_control:
             control_step_begin = time.time()
-            while self.control_interval - (time.time() - control_step_begin) > 1:
+            while self.cfg['controller']['control_interval'] - (time.time() - control_step_begin) > 1:
                 if not self._stop_control:
                     time.sleep(0.1)
                 else:
@@ -110,7 +94,7 @@ class EdgeNode:
             if self._stop_control:
                 break
             self._control_step()
-            time_till_step_end = self.control_interval - (time.time() - control_step_begin)
+            time_till_step_end = self.cfg['controller']['control_interval'] - (time.time() - control_step_begin)
             if time_till_step_end > 0:
                 time.sleep(time_till_step_end)
         self._stopped_control = True
@@ -120,9 +104,16 @@ class EdgeNode:
         This method represents a single control step. The last voltage data points is evaluated to define output level
         :return:
         """
+        log_event(self.cfg, self.module_name, '', 'INFO', 'Control step')
+        self.read_regime()
         decision_level = self._voltage_evaluation()
         if decision_level != self.consumption_level:
             self._set_consumption_level(decision_level)
+
+    def read_regime(self):
+        self.regime = 1
+
+        log_event(self.cfg, self.module_name, '', 'INFO', 'Phase: ' + str(self.regime))
 
     def increase_consumption_level(self):
         self._set_consumption_level(self.consumption_level+1)
@@ -146,17 +137,17 @@ class EdgeNode:
                 changes = [-x for x in self.mapping_table[level]]
 
         for change in changes:
-            channel = self.outputs[abs(change)-1]
+            channel = self.cfg['gpio']['relays_outputs']['channels'][abs(change)-1]
             access_data = {'channel_no': channel}
             desired_state = change > 0
             self.gpio_interface.write_value('gpio', access_data, desired_state)
 
         log_event(self.cfg, self.module_name, '', 'INFO', 'Consumption level set on ' + str(level))
-        self.load = self.load_mapping[level]
+        self.load = self.cfg['controller']['loads'][level]
         self.consumption_level = level
 
         data_point = BufferEntity(
-            {'measurement': self.state_measurement_name,
+            {'measurement': self.cfg['influxdb']['state_measurement_name'],
              'tags': {'Unit': 'V'},
              'fields': {'Value': level},
              'timestamp': round(time.time() * 1000)}
@@ -164,15 +155,15 @@ class EdgeNode:
         self.buffer.add_point(data_point)
 
         data_point_consumption = BufferEntity(
-            {'measurement': self.consumption_measurement_name,
-             'fields': {'Value': self.load_mapping[level]},
+            {'measurement': self.cfg['influxdb']['consumption_measurement_name'],
+             'fields': {'Value': self.cfg['controller']['loads'][level]},
              'timestamp': round(time.time() * 1000)}
         )
         self.buffer.add_point(data_point_consumption)
 
     def _voltage_evaluation(self):
         """
-        This method calculates average voltage valuea and check wherther it decreases or does not
+        This method calculates average voltage value and check whether it changes or does not
         :return:
         """
 
@@ -187,21 +178,32 @@ class EdgeNode:
         avg_voltage = sum(voltage_values) / len(voltage_values)
         log_event(self.cfg, self.module_name, '', 'INFO', 'Calculated average value:' + str(avg_voltage))
 
-        if avg_voltage <= self.critical_level:
+        if avg_voltage <= self.cfg['controller']['voltage_critical_level']:
             log_event(self.cfg, self.module_name, '', 'INFO', 'The voltage level is too low')
             return -1
 
-        if self.voltage_limit_min < avg_voltage < self.voltage_limit_max:
-            new_level = min(new_level+1, 7)
-        else:
-            if avg_voltage < self.voltage_average - self.voltage_threshold:
+        if self.regime == 0:
+            return
+
+        if self.regime == 1:
+            if avg_voltage >= self.cfg['controller']['voltage_absorb_limit_max']:
+                new_level = min(new_level+1, 7)
+                log_event(self.cfg, self.module_name, '', 'INFO',
+                          'The consumption level increased: ' + str(avg_voltage) + '>=' + str(self.voltage_average))
+            if avg_voltage <= self.cfg['controller']['voltage_absorb_limit_min']:
                 new_level = max(new_level - 1, 0)
                 log_event(self.cfg, self.module_name, '', 'INFO',
-                          'The consumption level decreased: ' + str(avg_voltage) + '<' + str(self.voltage_average))
-            else:
-                new_level = min(new_level + 1, 7)
+                          'The consumption level decreased: ' + str(avg_voltage) + '<=' + str(self.voltage_average))
+
+        if self.regime == 2:
+            if avg_voltage >= self.cfg['controller']['voltage_float_limit_max']:
+                new_level = min(new_level+1, 7)
                 log_event(self.cfg, self.module_name, '', 'INFO',
-                          'The consumption level increased: ' + str(avg_voltage) + '>' + str(self.voltage_average))
+                          'The consumption level increased: ' + str(avg_voltage) + '>=' + str(self.voltage_average))
+            if avg_voltage <= self.self.cfg['controller']['voltage_float_limit_min']:
+                new_level = max(new_level - 1, 0)
+                log_event(self.cfg, self.module_name, '', 'INFO',
+                          'The consumption level decreased: ' + str(avg_voltage) + '<=' + str(self.voltage_average))
 
         self.voltage_average = avg_voltage
 
@@ -241,7 +243,7 @@ class EdgeNode:
         This method is a single data collection step
         :return:
         """
-        voltage_value = self.gpio_interface.read_value('i2c', self.voltage_access_data)
+        voltage_value = self.gpio_interface.read_value('i2c', self.cfg['gpio']['voltage_sensor'])
         log_event(self.cfg, self.module_name, '', 'INFO', 'Data point collected ' + str(voltage_value))
         self._voltage_data.append(voltage_value)
 
@@ -249,10 +251,10 @@ class EdgeNode:
 
         # Add voltage data point in buffer
         data_point = BufferEntity(
-            {'measurement': self.voltage_measurement_name,
+            {'measurement': self.cfg['influxdb']['voltage_measurement_name'],
              'tags': {'Unit': 'V',
-                      'SclMin': self.voltage_access_data['channel_no'],
-                      'SclMax': self.voltage_access_data['channel_no']},
+                      'SclMin': self.cfg['gpio']['voltage_sensor']['scale_min'],
+                      'SclMax': self.cfg['gpio']['voltage_sensor']['scale_max']},
              'fields': {'Value': voltage_value},
              'timestamp': round(time.time() * 1000)}
         )
@@ -263,7 +265,7 @@ class EdgeNode:
 
         # Add data point in buffer
         data_point_level = BufferEntity(
-            {'measurement': self.output_measurement_name,
+            {'measurement': self.cfg['influxdb']['output_measurement_name'],
              'fields': {'Output1': output_state[0],
                         'Output2': output_state[1],
                         'Output3': output_state[2],
@@ -296,7 +298,7 @@ class EdgeNode:
     def _data_collection_mode(self):
         # Write mode change in influxdb
         data_point = BufferEntity(
-            {'measurement': self.mode_measurement_name,
+            {'measurement': self.cfg['influxdb']['mode_measurement_name'],
              'fields': {'Value': int(self.mode_auto)},
              'timestamp': round(time.time() * 1000)}
         )
@@ -307,14 +309,14 @@ class EdgeNode:
 
     def get_gpio_state(self):
         output_state = []
-        for channel in self.outputs:
+        for channel in self.cfg['gpio']['relays_outputs']['channels']:
             access_data = {'channel_no': channel}
             state = self.gpio_interface.check_gpio_state(access_data, True)
             output_state.append(state)
         return output_state
 
     def set_gpio_state(self, output_no, state):
-        channel = self.outputs[output_no]
+        channel = self.cfg['gpio']['relays_outputs']['channels'][output_no]
         access_data = {'channel_no': channel}
         self.gpio_interface.write_value('gpio', access_data, state)
         log_event(self.cfg, self.module_name, '', 'INFO', 'Channel ' + str(channel) + ' set to ' + str(state))

@@ -19,17 +19,28 @@ buffer:
 event_logger:
   publish: false
   print_level: DEBUG
+gpio:
+  regime_inputs:
+    adsorb: 5
+    float: 6
+  relays_outputs:
+    address: 0x27
+    channels:
+      - 1 # Output 1
+      - 2 # Output 2
+      - 3 # Output 3
+      - 4 # Output 4
+      - 5 # Output 5
+      - 6 # Output 6
+      - 7 # Output 7
+      - 8 # Output 8
+  voltage_sensor:
+    address: 0x10
+    channel: 0
+    scale_min: 50
+    scale_max: 60
 controller:
-  control_interval: 5
-  voltage_sensor_channel: 0
-  voltage_scale_min: 50
-  voltage_scale_max: 60
-  output_channels:
-    - 5 # Output 1
-    - 6 # Output 2
-    - 12 # Output 3
-    - 13 # Output 4
-    - 16 # Output 5
+  control_interval: 3
   loads:
     - 0
     - 0.33
@@ -39,9 +50,11 @@ controller:
     - 1.5
     - 2
     - 3
-  voltage_threshold: 0.1
   voltage_critical_level: 47
-  voltage_limit_min: 57
-  voltage_limit_max: 58
-  input_simulation: False
-  simulation_profile: sine
+  voltage_absorb_limit_min: 56
+  voltage_absorb_limit_max: 57
+  voltage_float_limit_min: 54
+  voltage_float_limit_max: 55
+simulation:
+  active: True
+  profile: constant
