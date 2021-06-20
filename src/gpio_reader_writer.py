@@ -34,10 +34,10 @@ class GPIODataReaderWriter:
         if self.deploy:
             analog_input = AnalogIn(self.ads, ADS.P0)
             if analog_input:
-                read_value = scale_min + analog_input.value * (scale_max-scale_min)/2**15
+                read_value = scale_min + analog_input.value * (scale_max-scale_min)/32752.0 - 2.2
             else:
                 read_value = 0
-        if True: #else:
+        else:
             raw_value = self.voltage_simulator.get_raw_value()
             read_value = self.voltage_simulator.value
             print('Read simulated value ', read_value, ' raw value = ', raw_value)

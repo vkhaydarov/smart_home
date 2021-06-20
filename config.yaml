@@ -42,7 +42,7 @@ gpio:
   voltage_sensor:
     address: 0x48
     channel: 0
-    scale_min: 50
+    scale_min: 40
     scale_max: 60
 controller:
   control_interval: 2
