@@ -15,7 +15,7 @@ influxdb:
   consumption_measurement_name: consumption
   mode_measurement_name: auto_mode
 buffer:
-  max_size: 100
+  max_size: 1000
 event_logger:
   publish: false
   print_level: DEBUG
@@ -25,28 +25,27 @@ gpio:
     float: 6
   relays_outputs:
     channels:
-      - 1 # Output 1
-      - 2 # Output 2
-      - 3 # Output 3
-      - 4 # Output 4
-      - 5 # Output 5
-      - 6 # Output 6
-      - 7 # Output 7
-      - 8 # Output 8
-      - 9 # Output 9
-      - 10 # Output 10
-      - 11 # Output 11
-      - 12 # Output 12
-      - 13 # Mains
+      - 26 # Output 1
+      - 16 # Output 2
+      - 13 # Output 3
+      - 17 # Output 4
+      - 23 # Output 5
+      - 4 # Output 6
+      - 20 # Output 7
+      - 27 # Output 8
+      - 12 # Output 9
+      - 21 # Output 10
+      - 05 # Output 11
+      - 19 # Output 12
+      - 25 # Output 13
   voltage_sensor:
-    address: 0x10
+    address: 0x48
     channel: 0
     scale_min: 50
     scale_max: 60
 controller:
-  control_interval: 3
+  control_interval: 2
   loads:
-    - 0
     - 0.33
     - 0.4
     - 0.444
@@ -76,5 +75,4 @@ controller:
   voltage_float_limit_min: 54
   voltage_float_limit_max: 55
 simulation:
-  active: True
-  profile: constant
+  active: False

@@ -15,14 +15,14 @@ if __name__ == '__main__':
     data_buffer = Buffer(cfg)
 
     # Start influxdb writer
-    idb = InfluxDBWriter(cfg=cfg, buffer=data_buffer)
-    idb.connect()
+    # idb = InfluxDBWriter(cfg=cfg, buffer=data_buffer)
+    # idb.connect()
 
     # Start controller
     ctrl = EdgeNode(cfg=cfg, buffer=data_buffer)
     ctrl.start()
 
     # Start frontend
-    frontend = Frontend('192.168.178.34', 5000, ctrl, idb)
-    frontend.start()
+    # frontend = Frontend('192.168.178.34', 5000, ctrl, idb)
+    # frontend.start()
 
