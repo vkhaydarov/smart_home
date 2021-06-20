@@ -65,6 +65,7 @@ class EdgeNode:
 
         # Current regime
         self.regime = 0
+        self.regime_str = ""
 
         # Control output 
         self.gpio_interface = GPIODataReaderWriter(not self.cfg['simulation']['active'])
@@ -262,6 +263,7 @@ class EdgeNode:
         """
         while not self._stop_data_collection:
             start_time = time.time()
+            self._data_collection_step_regime()
             self._data_collection_step_voltage_input()
             self._data_collection_step_output_states()
             time_till_next_step = 1 - (time.time() - start_time)
@@ -270,6 +272,20 @@ class EdgeNode:
         else:
             self._stopped_data_collection = True
             log_event(self.cfg, self.module_name, '', 'INFO', 'Data collection stopped')
+
+    def _data_collection_step_regime(self):
+        """
+        This method is a single data collection step
+        :return:
+        """
+
+        # Add regime data point in buffer
+        data_point = BufferEntity(
+            {'measurement': self.cfg['influxdb']['regime_measurement_name'],
+             'fields': {'Value': self.regime},
+             'timestamp': round(time.time() * 1000)}
+        )
+        self.buffer.add_point(data_point)
 
     def _data_collection_step_voltage_input(self):
         """
@@ -299,11 +315,19 @@ class EdgeNode:
         # Add data point in buffer
         data_point_level = BufferEntity(
             {'measurement': self.cfg['influxdb']['output_measurement_name'],
-             'fields': {'Output1': output_state[0],
-                        'Output2': output_state[1],
-                        'Output3': output_state[2],
-                        'Output4': output_state[3],
-                        'Output5': output_state[4]},
+             'fields': {'Output01': output_state[0],
+                        'Output02': output_state[1],
+                        'Output03': output_state[2],
+                        'Output04': output_state[3],
+                        'Output05': output_state[4],
+                        'Output06': output_state[5],
+                        'Output07': output_state[6],
+                        'Output08': output_state[7],
+                        'Output09': output_state[8],
+                        'Output10': output_state[9],
+                        'Output11': output_state[10],
+                        'Output12': output_state[11],
+                        'Output13': output_state[12]},
              'timestamp': round(time.time() * 1000)}
         )
         self.buffer.add_point(data_point_level)

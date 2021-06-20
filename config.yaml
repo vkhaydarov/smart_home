@@ -9,6 +9,7 @@ influxdb:
   db_password: db_password
   reconnect_interval: 10000
   write_interval: 10000
+  regime_measurement_name: phase
   voltage_measurement_name: voltage
   output_measurement_name: outputs
   state_measurement_name: state

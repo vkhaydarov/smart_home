@@ -3,16 +3,16 @@ version: "3.8"
 services:
 
   influxdb:
-    image: influxdb
+    image: influxdb:1.8
     volumes:
       - ./data/influxdb-data:/var/lib/influxdb
-    network_mode: "host"
+    ports:
+      - 8086:8086
 
   grafana:
     image: grafana/grafana
     user: "0"
     volumes:
       - ./data/grafana-data:/var/lib/grafana
-    network_mode: "host"
     ports:
       - 3000:3000
