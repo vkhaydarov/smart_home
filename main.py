@@ -19,7 +19,7 @@ if __name__ == '__main__':
     idb.connect()
 
     # Start controller
-    ctrl = EdgeNode(cfg=cfg, buffer=data_buffer, )
+    ctrl = EdgeNode(cfg=cfg, buffer=data_buffer)
     ctrl.start()
 
     # Start frontend

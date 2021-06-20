@@ -24,7 +24,6 @@ gpio:
     adsorb: 5
     float: 6
   relays_outputs:
-    address: 0x27
     channels:
       - 1 # Output 1
       - 2 # Output 2
@@ -34,6 +33,11 @@ gpio:
       - 6 # Output 6
       - 7 # Output 7
       - 8 # Output 8
+      - 9 # Output 9
+      - 10 # Output 10
+      - 11 # Output 11
+      - 12 # Output 12
+      - 13 # Mains
   voltage_sensor:
     address: 0x10
     channel: 0
@@ -44,12 +48,28 @@ controller:
   loads:
     - 0
     - 0.33
+    - 0.4
+    - 0.444
     - 0.5
-    - 0.67
+    - 0.667
+    - 0.723
+    - 0.75
+    - 0.8
+    - 0.833
+    - 0.907
     - 1
+    - 1.111
+    - 1.2
+    - 1.333
     - 1.5
-    - 2
-    - 3
+    - 1.667
+    - 1.75
+    - 2.0
+    - 2.5
+    - 2.667
+    - 3.0
+    - 3.667
+    - 4.0
   voltage_critical_level: 47
   voltage_absorb_limit_min: 56
   voltage_absorb_limit_max: 57
