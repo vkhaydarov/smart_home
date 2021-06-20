@@ -21,8 +21,8 @@ event_logger:
   print_level: DEBUG
 gpio:
   regime_inputs:
-    adsorb: 5
-    float: 6
+    absorb: 6
+    float: 22
   relays_outputs:
     channels:
       - 26 # Output 1
@@ -46,6 +46,7 @@ gpio:
 controller:
   control_interval: 2
   loads:
+    - 0
     - 0.33
     - 0.4
     - 0.444

@@ -21,6 +21,8 @@ class GPIODataReaderWriter:
     def read_value(self, access_type, access_data):
         if access_type == 'i2c':
             read_value = self._read_i2c(access_data)
+        elif access_type == 'gpio':
+            read_value = self._read_gpio(access_data)
         else:
             read_value = None
         return read_value
@@ -40,15 +42,23 @@ class GPIODataReaderWriter:
             read_value = self.voltage_simulator.value
             print('Read simulated value ', read_value, ' raw value = ', raw_value)
         return read_value
-
+    
+    def _read_gpio(self, canal):
+        if self.deploy:
+            GPIO.setup(channel, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+            read_value = GPIO.input(canal)
+        else:
+            read_value = True
+        print('Read ', read_value, ' in channel ', channel)
+        return read_value
 
     def write_gpio(self, channel, value):
         if self.deploy:
             GPIO.setup(channel, GPIO.OUT)
             if value:
-                state = GPIO.HIGH
-            else:
                 state = GPIO.LOW
+            else:
+                state = GPIO.HIGH
             GPIO.output(channel, state)
         else:
             self.gpio[channel] = value
@@ -78,9 +88,9 @@ class GPIODataReaderWriter:
     def check_gpio_state(self, channel, value):
         if self.deploy:
             if value:
-                state = GPIO.HIGH
-            else:
                 state = GPIO.LOW
+            else:
+                state = GPIO.HIGH
             current_state = GPIO.input(channel)
         else:
             current_state = self.gpio[channel]

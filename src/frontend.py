@@ -31,11 +31,20 @@ class Frontend:
                 "load": edge_node_obj.load,
                 "voltage_value": edge_node_obj.voltage_value,
                 "voltage_average": edge_node_obj.voltage_average,
+                "phase": edge_node_obj.regime_str,
                 "output1": output_states[0],
                 "output2": output_states[1],
                 "output3": output_states[2],
                 "output4": output_states[3],
                 "output5": output_states[4],
+                "output6": output_states[5],
+                "output7": output_states[6],
+                "output8": output_states[7],
+                "output9": output_states[8],
+                "output10": output_states[9],
+                "output11": output_states[10],
+                "output12": output_states[11],
+                "output13": output_states[12]
             }
 
         # Main page

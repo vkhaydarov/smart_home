@@ -132,8 +132,21 @@ class EdgeNode:
             self._set_consumption_level(decision_level)
 
     def read_regime(self):
-        self.regime = 1
-        log_event(self.cfg, self.module_name, '', 'INFO', 'Phase: ' + str(self.regime))
+        regime_names = ['not defined', 'bulk', 'absorb', 'float']
+        input_absorb = self.gpio_interface.read_value('GPIO', self.cfg['gpio']['regime_inputs']['absorb'])
+        input_float = self.gpio_interface.read_value('GPIO', self.cfg['gpio']['regime_inputs']['float'])
+        if input_absorb and not input_float:
+            regime = 2
+        elif not input_absorb and input_float:
+            regime = 3
+        elif not input_absorb and input_float:
+            regime = 1
+        else:
+            regime = 0
+        regime = 2
+        self.regime = regime
+        self.regime_str = regime_names[regime]
+        log_event(self.cfg, self.module_name, '', 'INFO', 'Phase: ' + regime_names[self.regime])
 
     def increase_consumption_level(self):
         self._set_consumption_level(self.consumption_level+1)
@@ -203,7 +216,7 @@ class EdgeNode:
             return -1
 
         if self.regime == 0:
-            return
+            return -1
 
         if self.regime == 1:
             if avg_voltage >= self.cfg['controller']['voltage_absorb_limit_max']:
@@ -220,7 +233,7 @@ class EdgeNode:
                 new_level = min(new_level+1, 23)
                 log_event(self.cfg, self.module_name, '', 'INFO',
                           'The consumption level is to increase: ' + str(avg_voltage) + '>=' + str(self.voltage_average))
-            if avg_voltage <= self.self.cfg['controller']['voltage_float_limit_min']:
+            if avg_voltage <= self.cfg['controller']['voltage_float_limit_min']:
                 new_level = max(new_level - 1, 0)
                 log_event(self.cfg, self.module_name, '', 'INFO',
                           'The consumption level is to decrease: ' + str(avg_voltage) + '<=' + str(self.voltage_average))
@@ -330,8 +343,8 @@ class EdgeNode:
     def get_gpio_state(self):
         output_state = []
         for channel in self.cfg['gpio']['relays_outputs']['channels']:
-            state = True
-            #state = self.gpio_interface.check_gpio_state(channel, True)
+            #state = True
+            state = self.gpio_interface.check_gpio_state(channel, False)
             output_state.append(state)
         return output_state
 
